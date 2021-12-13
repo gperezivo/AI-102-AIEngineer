@@ -97,6 +97,9 @@ In this exercise, you'll complete a partially implemented client application tha
     // Configure speech service
     speechConfig = SpeechConfig.FromSubscription(cogSvcKey, cogSvcRegion);
     Console.WriteLine("Ready to use speech service in " + speechConfig.Region);
+    
+    // Configure voice
+    speechConfig.SpeechSynthesisVoiceName = "en-US-AriaNeural";
     ```
     
     **Python**
@@ -278,6 +281,7 @@ Your speaking clock application accepts spoken input, but it doesn't actually sp
     
     ```C#
     // Configure speech synthesis
+    speechConfig.SpeechSynthesisVoiceName = "en-GB-RyanNeural";
     using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
     ```
     
@@ -285,6 +289,7 @@ Your speaking clock application accepts spoken input, but it doesn't actually sp
     
     ```Python
     # Configure speech synthesis
+    speech_config.speech_synthesis_voice_name = "en-GB-RyanNeural"
     speech_synthesizer = speech_sdk.SpeechSynthesizer(speech_config)
     ```
     
@@ -340,7 +345,7 @@ Your speaking clock application uses a default voice, which you can change. The 
 
     ```C#
     // Configure speech synthesis
-    speechConfig.SpeechSynthesisVoiceName = "en-GB-George"; // add this
+    speechConfig.SpeechSynthesisVoiceName = "en-GB-LibbyNeural"; // add this
     using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
     ```
     
@@ -348,7 +353,7 @@ Your speaking clock application uses a default voice, which you can change. The 
     
     ```Python
     # Configure speech synthesis
-    speech_config.speech_synthesis_voice_name = 'en-GB-George' # add this
+    speech_config.speech_synthesis_voice_name = 'en-GB-LibbyNeural' # add this
     speech_synthesizer = speech_sdk.SpeechSynthesizer(speech_config)
     ```
 
@@ -380,7 +385,7 @@ Speech Synthesis Markup Language (SSML) enables you to customize the way your sp
     // Synthesize spoken output
     string responseSsml = $@"
         <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
-            <voice name='en-GB-Susan'>
+            <voice name='en-GB-LibbyNeural'>
                 {responseText}
                 <break strength='weak'/>
                 Time to end this lab!
@@ -399,7 +404,7 @@ Speech Synthesis Markup Language (SSML) enables you to customize the way your sp
     # Synthesize spoken output
     responseSsml = " \
         <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'> \
-            <voice name='en-GB-Susan'> \
+            <voice name='en-GB-LibbyNeural'> \
                 {} \
                 <break strength='weak'/> \
                 Time to end this lab! \
