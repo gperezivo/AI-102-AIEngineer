@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.CognitiveServices.Vision.Face;
+using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
 // Import namespaces
 
@@ -27,6 +29,11 @@ namespace analyze_faces
                 string cogSvcKey = configuration["CognitiveServiceKey"];
 
                 // Authenticate Face client
+                var cred = new ApiKeyServiceClientCredentials(cogSvcKey);
+                faceClient= new FaceClient(cred)
+                {
+                    Endpoint = cogSvcEndpoint
+                };
 
 
                 // Menu for face functions
@@ -65,9 +72,15 @@ namespace analyze_faces
         static async Task DetectFaces(string imageFile)
         {
             Console.WriteLine($"Detecting faces in {imageFile}");
-
+            using var fileStream = File.OpenRead(imageFile);
+            var result = await faceClient.Face.DetectWithStreamAsync(fileStream,
+                detectionModel: "detection_03",
+                returnFaceAttributes: new List<FaceAttributeType>()
+                {
+                    FaceAttributeType.Accessories, FaceAttributeType.Age,FaceAttributeType.Mask, FaceAttributeType.Smile
+                });
             // Specify facial features to be retrieved
-
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(result));
 
             // Get faces
  
