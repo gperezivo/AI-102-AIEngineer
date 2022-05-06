@@ -22,8 +22,8 @@ namespace sdk_client
                 cogSvcKey = configuration["CognitiveServiceKey"];
 
                 // Set console encoding to unicode
-                Console.InputEncoding = Encoding.Unicode;
-                Console.OutputEncoding = Encoding.Unicode;
+                // Console.InputEncoding = Encoding.Unicode;
+                // Console.OutputEncoding = Encoding.Unicode;
 
                 // Get user input (until they enter "quit")
                 string userText = "";
