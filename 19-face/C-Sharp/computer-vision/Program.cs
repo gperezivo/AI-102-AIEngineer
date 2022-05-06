@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 // Import namespaces
 
@@ -26,11 +28,15 @@ namespace detect_faces
                 string cogSvcKey = configuration["CognitiveServiceKey"];
 
                 // Authenticate Computer Vision client
-
+                var cred = new ApiKeyServiceClientCredentials(cogSvcKey);
+                cvClient = new ComputerVisionClient(cred)
+                {
+                    Endpoint = cogSvcEndpoint
+                };
 
 
                 // Detect faces in an image
-                string imageFile = "images/people.jpg";
+                string imageFile = "images/me.png";
                 await AnalyzeFaces(imageFile);
                
             }
@@ -44,8 +50,15 @@ namespace detect_faces
         {
             Console.WriteLine($"Analyzing {imageFile}");
 
+            using var fileStream = File.OpenRead(imageFile);
             // Specify features to be retrieved (faces)
-            
+            var analyze = await cvClient.AnalyzeImageInStreamAsync(fileStream,
+                new List<VisualFeatureTypes?>() {
+                    VisualFeatureTypes.Faces
+                });
+
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(analyze));
+            Console.WriteLine(analyze.Faces.Select(f => f.Age).FirstOrDefault());
 
 
             // Get image analysis

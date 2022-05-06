@@ -52,6 +52,8 @@ When you created your cognitive services resource, two authentication keys were 
     A web browser tab will open and prompt you to sign into Azure. Do so, and then close the browser tab and return to Visual Studio Code.
 
     > **Tip**: If you have multiple subscriptions, you'll need to ensure that you are working in the one that contains your cognitive services resource.  Use this command to         determine your current subscription - its unique ID is the **id** value in the JSON that gets returned.
+
+    > **Warning**: If you are getting a certificate verfication failure for `az login`, try waiting a few minutes and trying again.
     >
     > ```
     > az account show
@@ -124,14 +126,14 @@ First, you need to create a key vault and add a *secret* for the cognitive servi
 
 ### Create a service principal
 
-To access the secret in the key vault, your application must use a service principal that has access to the secret. You'll use the Azure command line interface (CLI) to create the service principal and grant access to the secret in Azure Vault.
+To access the secret in the key vault, your application must use a service principal that has access to the secret. You'll use the Azure command line interface (CLI) to create the service principal, find its object ID, and grant access to the secret in Azure Vault.
 
 1. Return to Visual Studio Code, and in the integrated terminal for the **02-cognitive-security** folder, run the following Azure CLI command, replacing *&lt;spName&gt;* with a suitable name for an application identity (for example, *ai-app*). Also replace *&lt;subscriptionId&gt;* and *&lt;resourceGroup&gt;* with the correct values for your subscription ID and the resource group containing your cognitive services and key vault resources:
 
     > **Tip**: If you are unsure of your subscription ID, use the **az account show** command to retrieve your subscription information - the subscription ID is the **id** attribute in the output.
 
     ```
-    az ad sp create-for-rbac -n "https://<spName>" --role owner --scopes subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>
+    az ad sp create-for-rbac -n "api://<spName>" --role owner --scopes subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>
     ```
 
 The output of this command includes information about your new service principal. It should look similar to this:
@@ -140,7 +142,7 @@ The output of this command includes information about your new service principal
     {
         "appId": "abcd12345efghi67890jklmn",
         "displayName": "ai-app",
-        "name": "https://ai-app",
+        "name": "http://ai-app",
         "password": "1a2b3c4d5e6f7g8h9i0j",
         "tenant": "1234abcd5678fghi90jklm"
     }
@@ -148,10 +150,16 @@ The output of this command includes information about your new service principal
 
 Make a note of the **appId**, **password**, and **tenant** values - you will need them later (if you close this terminal, you won't be able to retrieve the password; so it's important to note the values now - you can paste the output into a new text file in Visual Studio Code to ensure you can find the values you need later!)
 
-2. To assign permission for your new service principal to access secrets in your Key Vault, run the following Azure CLI command, replacing *&lt;keyVaultName&gt;* with the name of your Azure Key Vault resource and *&lt;spName&gt;* with the same value you provided when creating the service principal.
+2. To get the **object ID** of your service principal, run the following Azure CLI command, replacing *&lt;appId&gt;* with the value of your service principal's app ID.
 
     ```
-    az keyvault set-policy -n <keyVaultName> --spn "https://<spName>" --secret-permissions get list
+    az ad sp show --id <appId> --query objectId --out tsv
+    ```
+
+3. To assign permission for your new service principal to access secrets in your Key Vault, run the following Azure CLI command, replacing *&lt;keyVaultName&gt;* with the name of your Azure Key Vault resource and *&lt;objectId&gt;* with the value of your service principal's object ID.
+
+    ```
+    az keyvault set-policy -n <keyVaultName> --object-id <objectId> --secret-permissions get list
     ```
 
 ### Use the service principal in an application
